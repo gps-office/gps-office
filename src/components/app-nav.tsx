@@ -101,7 +101,7 @@ export function AppNav({
       )}
 
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col justify-between bg-brand-900 p-3 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 flex-col justify-between overflow-y-auto bg-brand-900 p-3 lg:flex">
         <div>
           <Link href="/" className="mb-6 block px-3 pt-2">
             <div className="text-lg font-semibold text-white">GPS Office</div>

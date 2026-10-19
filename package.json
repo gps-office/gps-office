@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:start": "supabase start -x studio,imgproxy,vector,logflare,supavisor,realtime,edge-runtime,postgres-meta",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local --schema public > src/lib/database.types.ts && prettier --print-width 110 --write src/lib/database.types.ts",
+    "db:test": "supabase/tests/run-local.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -24,6 +29,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
+    "prettier": "^3.9.10",
     "supabase": "^2.121.0",
     "tailwindcss": "^4",
     "typescript": "^5"

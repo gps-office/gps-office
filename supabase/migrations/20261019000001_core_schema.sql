@@ -211,7 +211,7 @@ create table public.case_reference_counters (
 
 create table public.cases (
   id uuid primary key default gen_random_uuid(),
-  reference text not null unique, -- GPS-26-0001, assigned by trigger
+  reference text not null unique default '', -- GPS-26-0001, always set by trigger
   client_id uuid not null references public.clients (id),
   service_id uuid not null references public.services (id),
   title text,
