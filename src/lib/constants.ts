@@ -138,3 +138,23 @@ export function labelOf<T extends { value: string; label: string }>(
 ): string {
   return list.find((i) => i.value === value)?.label ?? value ?? "";
 }
+
+export const DOCUMENTS_BUCKET = "case-documents";
+export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
+// Keep in step with the bucket's allowed_mime_types (storage migration).
+export const UPLOAD_TYPES: Record<string, string> = {
+  "application/pdf": "pdf",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+  "image/tiff": "tif",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+  "application/vnd.ms-excel": "xls",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+  "text/plain": "txt",
+  "message/rfc822": "eml",
+  "application/vnd.ms-outlook": "msg",
+};

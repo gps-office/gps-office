@@ -41,15 +41,14 @@ export async function createCase(_prev: unknown, fd: FormData): Promise<ActionRe
   // The client is the main applicant on their own case.
   const { data: client } = await supabase
     .from("clients")
-    .select("id, full_name, hebrew_name, date_of_birth, nationality, passport_number, passport_expiry")
+    .select("full_name, hebrew_name, date_of_birth, nationality, passport_number, passport_expiry")
     .eq("id", clientId)
     .single();
   if (client) {
-    const { id: _clientRecordId, ...person } = client;
     await supabase.from("case_people").insert({
       case_id: created.id,
-      client_id: client.id,
-      ...person,
+      client_id: clientId,
+      ...client,
       relationship: "Main applicant",
       is_main_applicant: true,
     });

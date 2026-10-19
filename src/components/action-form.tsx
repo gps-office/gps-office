@@ -29,12 +29,18 @@ export function ActionForm({
   const [state, formAction, pending] = useActionState(action, null);
   const ref = useRef<HTMLFormElement>(null);
 
+  const onSuccessRef = useRef(onSuccess);
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+  });
+
+  // Runs once per new result (state is a fresh object each submission).
   useEffect(() => {
     if (state?.ok) {
       if (resetOnSuccess) ref.current?.reset();
-      onSuccess?.();
+      onSuccessRef.current?.();
     }
-  }, [state, resetOnSuccess, onSuccess]);
+  }, [state, resetOnSuccess]);
 
   return (
     <form
