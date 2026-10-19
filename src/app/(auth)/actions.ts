@@ -19,8 +19,9 @@ export async function signIn(_prev: FormResult, formData: FormData): Promise<For
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: "Email or password is incorrect." };
 
-  // The proxy sends the user on to 2FA (set-up or code entry).
-  redirect("/mfa");
+  // 2FA is mandatory: enter a code, or set it up on first sign-in.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  redirect(aal?.nextLevel === "aal2" ? "/mfa" : "/mfa/enroll");
 }
 
 export async function requestPasswordReset(_prev: FormResult, formData: FormData): Promise<FormResult> {
@@ -56,7 +57,9 @@ export async function setPassword(_prev: FormResult, formData: FormData): Promis
             : "The password could not be saved. Please try again.",
     };
   }
-  redirect("/");
+  // New staff go on to set up 2FA; a password reset (already at AAL2) is done.
+  const { data } = await supabase.auth.getClaims();
+  redirect(data?.claims.aal === "aal2" ? "/" : "/mfa/enroll");
 }
 
 export async function signOut() {

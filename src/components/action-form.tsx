@@ -1,14 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, useRef, type ReactNode } from "react";
+import { createContext, startTransition, useActionState, useContext, useEffect, useRef, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { cx, buttonClass } from "@/components/ui";
 
 export type FormResult = { ok: true; message?: string } | { ok: false; error: string } | null;
 
+const PendingContext = createContext(false);
+
 /**
  * A form bound to a server action returning { ok, error | message }.
- * Shows the outcome inline and optionally resets on success.
+ * Shows the outcome inline. Fields keep their values after submitting
+ * (React would otherwise clear them), unless resetOnSuccess is set.
  */
 export function ActionForm({
   action,
@@ -23,7 +26,7 @@ export function ActionForm({
   resetOnSuccess?: boolean;
   onSuccess?: () => void;
 }) {
-  const [state, formAction] = useActionState(action, null);
+  const [state, formAction, pending] = useActionState(action, null);
   const ref = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -34,8 +37,16 @@ export function ActionForm({
   }, [state, resetOnSuccess, onSuccess]);
 
   return (
-    <form ref={ref} action={formAction} className={className}>
-      {children}
+    <form
+      ref={ref}
+      className={className}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget, (e.nativeEvent as SubmitEvent).submitter);
+        startTransition(() => formAction(formData));
+      }}
+    >
+      <PendingContext value={pending}>{children}</PendingContext>
       {state && !state.ok && (
         <p role="alert" className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
           {state.error}
@@ -63,7 +74,9 @@ export function SubmitButton({
   className?: string;
   pendingText?: string;
 }) {
-  const { pending } = useFormStatus();
+  const formPending = useContext(PendingContext);
+  const { pending: statusPending } = useFormStatus();
+  const pending = formPending || statusPending;
   return (
     <button type="submit" disabled={pending} className={cx(buttonClass(variant, size), className)}>
       {pending ? (pendingText ?? "Saving…") : children}

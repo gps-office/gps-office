@@ -54,6 +54,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (claims.aal !== "aal2") {
+    // nextLevel only decides which 2FA screen to show. Access itself depends
+    // on the verified aal claim above, and again on AAL2 in every RLS policy.
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
     if (aal?.nextLevel === "aal2") {
       // Has 2FA set up: must enter a code before anything else.
