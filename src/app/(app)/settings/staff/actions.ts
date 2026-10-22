@@ -33,7 +33,7 @@ export async function inviteStaff(_prev: unknown, formData: FormData): Promise<A
 
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${siteUrl()}/auth/confirm?next=/set-password`,
+    redirectTo: `${siteUrl()}/auth/callback?next=/set-password`,
     data: { full_name },
   });
   if (error || !data.user) {
@@ -90,7 +90,7 @@ export async function resendInvite(_prev: unknown, formData: FormData): Promise<
   if (!email.success) return invalid("Missing email address.");
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.inviteUserByEmail(email.data, {
-    redirectTo: `${siteUrl()}/auth/confirm?next=/set-password`,
+    redirectTo: `${siteUrl()}/auth/callback?next=/set-password`,
   });
   if (error) {
     console.error("[gps] resend invite failed", error.code ?? "unknown");
