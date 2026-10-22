@@ -39,8 +39,8 @@ In the Supabase dashboard:
 | Authentication → Sign In / Providers → Email | Keep **Email enabled**. Confirm email: ON. Minimum password length: **12**. Turn on leaked-password protection if your plan has it |
 | Authentication → Multi-Factor | **TOTP (authenticator app): enabled** |
 | Authentication → URL Configuration | **Site URL** = your app address (e.g. `https://gps-office.vercel.app`). Add `https://gps-office.vercel.app/**` to **Redirect URLs** |
-| Authentication → Emails → Templates | Replace **Invite user** with `supabase/templates/invite.html` and **Reset password** with `supabase/templates/recovery.html` (copy the HTML in) |
-| Authentication → Emails → SMTP | Set up your own email sender (e.g. your Google Workspace or Resend). Supabase’s built-in sender is limited to a few emails an hour |
+| Authentication → Emails → SMTP Settings | Set up your own email sender (e.g. Google Workspace or Resend) before inviting staff. Supabase’s built-in sender only delivers to members of your Supabase organisation and only a few emails an hour |
+| Authentication → Emails → Templates (optional, needs SMTP) | Replace **Invite user** with `supabase/templates/invite.html` and **Reset password** with `supabase/templates/recovery.html`. The app also works with Supabase’s standard templates |
 
 > Do **not** switch off the Email provider itself – that disables password sign-in completely.
 > Sign-ups are blocked by the first setting.

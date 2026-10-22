@@ -25,7 +25,7 @@ if (!url || !key) {
 const supabase = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
 const { data, error } = await supabase.auth.admin.inviteUserByEmail(email.toLowerCase(), {
-  redirectTo: `${site}/auth/confirm?next=/set-password`,
+  redirectTo: `${site}/auth/callback?next=/set-password`,
   data: { full_name: fullName },
 });
 if (error) {

@@ -4,11 +4,11 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
 import type { Database } from "@/lib/database.types";
 
 // Pages reachable without signing in.
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm"];
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/auth/confirm", "/auth/callback"];
 // Signed in, password only (2FA not yet set up).
-const ENROL_PATHS = ["/mfa/enroll", "/set-password", "/inactive", "/auth/confirm"];
+const ENROL_PATHS = ["/mfa/enroll", "/set-password", "/inactive", "/auth/confirm", "/auth/callback"];
 // Signed in, 2FA set up but not yet entered this session (exact paths).
-const VERIFY_PATHS = ["/mfa", "/inactive", "/auth/confirm"];
+const VERIFY_PATHS = ["/mfa", "/inactive", "/auth/confirm", "/auth/callback"];
 
 function matches(pathname: string, paths: string[]) {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -66,9 +66,12 @@ export async function updateSession(request: NextRequest) {
     return matches(pathname, ENROL_PATHS) ? response : redirectTo("/mfa/enroll");
   }
 
-  // Fully signed in: keep people out of the login screens.
+  // Fully signed in: keep people out of the login screens, sending them on
+  // to where they were going (e.g. /set-password after a reset link).
   if (matches(pathname, ["/login", "/mfa"])) {
-    return redirectTo("/");
+    const next = request.nextUrl.searchParams.get("next");
+    const safe = next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : "/";
+    return redirectTo(safe);
   }
 
   return response;
