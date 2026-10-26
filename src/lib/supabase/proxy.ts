@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/env";
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/env";
 import type { Database } from "@/lib/database.types";
 
 // Pages reachable without signing in.
@@ -17,6 +17,14 @@ function matches(pathname: string, paths: string[]) {
 // Refreshes the Supabase session cookie and routes each request to the right
 // step: login → (set password) → 2FA set-up or 2FA code → the office.
 export async function updateSession(request: NextRequest) {
+  if (!supabaseConfigured()) {
+    // Fail closed with a clear message instead of a bare 500.
+    console.error("[gps] Supabase environment variables missing or malformed");
+    return new NextResponse(
+      "GPS Office is not configured: check NEXT_PUBLIC_SUPABASE_URL (https://<ref>.supabase.co) and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel, then redeploy.",
+      { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
+    );
+  }
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
