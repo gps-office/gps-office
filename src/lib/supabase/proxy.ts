@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/env";
+import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigProblems, supabaseConfigured } from "@/lib/env";
 import type { Database } from "@/lib/database.types";
 
 // Pages reachable without signing in.
@@ -20,8 +20,15 @@ export async function updateSession(request: NextRequest) {
   if (!supabaseConfigured()) {
     // Fail closed with a clear message instead of a bare 500.
     console.error("[gps] Supabase environment variables missing or malformed");
+    const problems = supabaseConfigProblems();
     return new NextResponse(
-      "GPS Office is not configured: check NEXT_PUBLIC_SUPABASE_URL (https://<ref>.supabase.co) and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel, then redeploy.",
+      [
+        "GPS Office is not configured correctly:",
+        ...problems.map((p) => `- ${p}`),
+        "",
+        "Fix it in Vercel → Project → Settings → Environment Variables (make sure it applies to Production), then redeploy.",
+        "Note: NEXT_PUBLIC_ values are built into the site, so a redeploy is needed after every change.",
+      ].join("\n"),
       { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } },
     );
   }
