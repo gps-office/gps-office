@@ -29,11 +29,13 @@ export function MfaEnroll() {
       }
       const { data, error } = await supabase.auth.mfa.enroll({
         factorType: "totp",
-        friendlyName: `GPS Office ${new Date().toISOString().slice(0, 16)}`,
+        friendlyName: `GPS Office ${new Date().toISOString()} ${Math.random().toString(36).slice(2, 6)}`,
         issuer: "GPS Office",
       });
       if (error || !data) {
-        setError("Two-factor set-up could not start. Refresh the page to try again.");
+        // Supabase's reason (e.g. "mfa_totp_enroll_not_enabled") has no personal data.
+        const reason = error ? ` (${error.code ?? error.name}: ${error.message})` : "";
+        setError(`Two-factor set-up could not start. Refresh the page to try again.${reason}`);
         return;
       }
       setEnrolment({ factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret });
